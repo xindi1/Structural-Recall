@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#2E4057" />
+  <title>Structural Recall</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">STRUCTURAL RECALL</div>
+      <div class="brand__subtitle">Chronological Memory Console</div>
+    </div>
+
+    <div class="topbar__actions">
+      <button id="btnTimeline" class="btn btn--ghost" type="button">Timeline Overview</button>
+      <button id="btnExport" class="btn btn--ghost" type="button">Export JSON</button>
+      <label class="btn btn--ghost filebtn" for="importFile">Import JSON</label>
+      <input id="importFile" type="file" accept="application/json" hidden />
+    </div>
+  </header>
+
+  <main class="shell">
+    <!-- Console -->
+    <section class="console card">
+      <div class="console__row">
+        <button id="btnPrevYear" class="navbtn" type="button" aria-label="Previous year">←</button>
+
+        <div class="console__center">
+          <div class="console__label">YEAR</div>
+          <div class="console__year">
+            <span id="yearValue">1988</span>
+          </div>
+          <div class="console__meta">
+            <span id="yearMeta">Entries: 0</span>
+            <span class="dot">•</span>
+            <span id="yearMeta2">Last added: —</span>
+          </div>
+        </div>
+
+        <button id="btnNextYear" class="navbtn" type="button" aria-label="Next year">→</button>
+      </div>
+
+      <div class="console__cta">
+        <button id="btnAddMemory" class="btn btn--primary" type="button">Add Memory</button>
+        <button id="btnViewYear" class="btn btn--secondary" type="button">View Entries</button>
+      </div>
+
+      <div class="console__hint">
+        Capture is free. Organization stays chronological. Keep it atomic.
+      </div>
+    </section>
+
+    <!-- Year Entries -->
+    <section id="yearEntries" class="card hidden">
+      <div class="sectionHead">
+        <div>
+          <div class="sectionTitle">Entries for <span id="entriesYearLabel">1988</span></div>
+          <div class="sectionSub">Sorted by created time (newest first). Click an entry to expand.</div>
+        </div>
+        <button id="btnCloseYear" class="btn btn--ghost" type="button">Close</button>
+      </div>
+
+      <div id="entriesList" class="list"></div>
+    </section>
+
+    <!-- Timeline Grid -->
+    <section id="timeline" class="card hidden">
+      <div class="sectionHead">
+        <div>
+          <div class="sectionTitle">Timeline Overview</div>
+          <div class="sectionSub">Chronological spine. Jump to any year. Counts show density without gamification.</div>
+        </div>
+        <button id="btnCloseTimeline" class="btn btn--ghost" type="button">Close</button>
+      </div>
+
+      <div class="timelineControls">
+        <div class="field">
+          <label>From</label>
+          <input id="fromYear" type="number" min="1900" max="2100" value="1980" />
+        </div>
+        <div class="field">
+          <label>To</label>
+          <input id="toYear" type="number" min="1900" max="2100" value="2030" />
+        </div>
+        <button id="btnRenderGrid" class="btn btn--secondary" type="button">Render</button>
+      </div>
+
+      <div id="yearGrid" class="yearGrid"></div>
+    </section>
+  </main>
+
+  <!-- Add Memory Modal -->
+  <dialog id="modal" class="modal">
+    <form id="entryForm" method="dialog" class="modal__panel">
+      <div class="modal__head">
+        <div>
+          <div class="modal__title">New Memory Entry</div>
+          <div class="modal__sub">Atomic, honest, timestamped. Visibility controls future export.</div>
+        </div>
+        <button id="btnModalClose" class="iconbtn" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Year (primary)</label>
+          <input id="yearPrimary" type="number" min="1900" max="2100" required />
+        </div>
+
+        <div class="field">
+          <label>Year Range (optional)</label>
+          <input id="yearRange" type="text" placeholder="e.g., 1988–1989" />
+        </div>
+
+        <div class="field">
+          <label>Age (optional)</label>
+          <input id="age" type="text" placeholder="e.g., 3–4" />
+        </div>
+
+        <div class="field">
+          <label>Location (optional)</label>
+          <input id="location" type="text" placeholder="City, State / Place" />
+        </div>
+
+        <div class="field">
+          <label>Source Type</label>
+          <select id="sourceType" required>
+            <option value="Personal Recall" selected>Personal Recall</option>
+            <option value="Video-Derived">Video-Derived</option>
+            <option value="Photo-Derived">Photo-Derived</option>
+            <option value="Family-Reported">Family-Reported</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Confidence</label>
+          <select id="confidence" required>
+            <option value="High">High</option>
+            <option value="Moderate" selected>Moderate</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Visibility</label>
+          <select id="visibility" required>
+            <option value="Private" selected>🔒 Private</option>
+            <option value="Restricted">⚖️ Restricted</option>
+            <option value="Publishable">🌐 Publishable</option>
+          </select>
+        </div>
+
+        <div class="field span2">
+          <label>Working Title</label>
+          <input id="title" type="text" placeholder="Concrete + searchable (e.g., USS Below Deck — Hand Stepped On)" required />
+        </div>
+
+        <div class="field span2">
+          <label>Who was present (optional)</label>
+          <input id="who" type="text" placeholder="e.g., Mom, Dad, tour group" />
+        </div>
+
+        <div class="field span2">
+          <label>Core Event (3–8 sentences)</label>
+          <textarea id="coreEvent" rows="6" placeholder="Just what happened. Keep it clean and factual."></textarea>
+        </div>
+
+        <div class="field span2">
+          <label>Sensory Marker</label>
+          <textarea id="sensory" rows="3" placeholder="Sound / light / texture / temperature / body sensation"></textarea>
+        </div>
+
+        <div class="field span2">
+          <label>Emotional Tone (words, not numbers)</label>
+          <input id="tone" type="text" placeholder="e.g., alert fascination, quiet pride, charged curiosity" />
+        </div>
+
+        <div class="field span2">
+          <label>Tags (comma-separated, optional)</label>
+          <input id="tags" type="text" placeholder="e.g., Water, Confinement, Awakening, Agency" />
+        </div>
+
+        <div class="field span2">
+          <label>Related Memories (create stubs later; optional)</label>
+          <input id="related" type="text" placeholder="IDs or quick notes (e.g., '1990 move back to Charlotte', '2008 swimming begins')" />
+        </div>
+      </div>
+
+      <div class="modal__foot">
+        <button id="btnSave" class="btn btn--primary" value="default" type="submit">Save Entry</button>
+        <button id="btnSaveStub" class="btn btn--secondary" type="button">Save + Create Related Stubs</button>
+        <button class="btn btn--ghost" value="cancel" type="button" id="btnCancel">Cancel</button>
+      </div>
+
+      <div class="modal__fineprint">
+        Tip: If this is heavy, capture baseline only. Interpret later as a reflection layer (v2).
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
