@@ -1,4 +1,4 @@
-const CACHE = "sr-v2-cache";
+const CACHE = "sr-v3-cache";
 const ASSETS = [
   "./",
   "./index.html",
